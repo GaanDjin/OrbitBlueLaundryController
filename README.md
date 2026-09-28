@@ -2,6 +2,13 @@
 
 ## First: This project involves Fire, Moving Parts, and Mains Electricity. This can result in burning the place down, being maimed, or death so don't attempt unless you know what you are doing!
 
+### What this is:
+An ESP32 firmware designed to talk to a server laundry card tap system (Currently closed source).
+RFID tap → REST deduct balance and start machine.
+Three profiles divided into 2 projects at the moment: kiosk for checking, loading, and refunding card balances and then the washer/dryer which deduct card balances and control machines.
+OTA updates
+And remote config via heartbeat.
+
 
 I took over a small laundromat in the middle of nowhere Nov. 2024 and at the time only about 50% of the machines worked which meant lots of repairing. After I had them *mostly* up and running it became obvious the coin acceptors were a bit of a nightmare to use and watching people struggle to work out how coins worked (The number of time I had to tell someone which slot to put the Loonie in makes me want to cry) I decided I needed to fix that. After looking at some of the commercial products out there, which would have been nice, but were just way too expensive; I decided to build my own, from the ground up. 
 
@@ -11,7 +18,7 @@ Enter: Orbit Blue a Laundry card management system. This would be the hardware e
 
 [Dryer Start](Images/20260927_091349%20[x264].mp4)
 
-It's hard to see in the video but as I hold the card there is starts by adding 5 minutes and then adds another 5 minutes. As timer mode is cumulative so every tap (or the longer you hold) will continue to add time up to your balance.
+It's hard to see in the video but as I hold the card up to the reader it starts by adding 5 minutes and then adds another 5 minutes. As timer mode is cumulative so every tap (or the longer you hold) will continue to add time up to your balance.
 
 [Dryer Countdown](Images/20260927_091349%20[x264].mp4)
 
@@ -29,7 +36,7 @@ The old dryer coin drop which would accept quarters and rotate a gear and ratche
 <img src="Images/coindropfront.jpg" style="width:300px; height:auto;">
 <img src="Images/coindroptop.jpg" style="width:300px; height:auto;">
 <img src="Images/coindropbottom.jpg" style="width:300px; height:auto;">
-So they've been $0.25 per 5 min for 60 years. (Or the really cheap that figured out a Nickle would usually work too)
+So they've been $0.25 per 5 min for 60 years. (Or the really cheap that figured out a Nickel would usually work too)
 
 I tried to make the system as modular as possible so that any one module can fail and be easily replaced without tossing the whole works. I did manage to blow up a relay module putting the front panel back on and it shorted to ground. *Ka-POW* and a puff of smoke. So, again, *LINE VOLTAGE... SCARY*
 
@@ -37,7 +44,7 @@ A Partially assembled dryer box:
 <img src="Images/dryercontroller.jpg" style="width:300px; height:auto;">
 <img src="Images/PCBInCaseV1.jpg" style="width:300px; height:auto;">
 
-I have yet to make a box for the washer yet:
+I have yet to make a box for the washer:
 <img src="Images/controllerinwasher.jpg" style="width:300px; height:auto;">
 
 What the initial test looked like:
@@ -53,7 +60,7 @@ The PCB just have to snip the resistor leads:
 BOM:
 
 ASA Filament for the Dryer boxes. PLA won't cut it as the dryer heat will warp it. 
-1 x EXP32 Dev board. Specifically: 30PIN ESP32S ESP-WROOM-32 I use [this one](https://www.amazon.ca/dp/B0BQJ8BTVB?th=1)
+1 x ESP32 Dev board. Specifically: 30PIN ESP32S ESP-WROOM-32 I use [this one](https://www.amazon.ca/dp/B0BQJ8BTVB?th=1)
 1 x 5mm LED <-- For Washer as a status indicator
 1 x 100k resistor <-- Washer
 1 x 480 Ohm resistor <-- Washer
@@ -63,7 +70,7 @@ ASA Filament for the Dryer boxes. PLA won't cut it as the dryer heat will warp i
 1 x [IRM-05-5 AC to 5v DC](https://www.digikey.ca/en/products/detail/mean-well-usa-inc/IRM-05-5/7704652) <-- A cheap buck converter isn't the greatest because of the EMI the dryers create. Needed if you can't find a 5v supply.
 1 x [AQY212EH Solid State Photo-Coupled Relay (Photorelay)](https://www.digikey.ca/en/products/detail/panasonic-industry/AQY212EH/512405) <-- Photo Relay for Washer
 1 x [Two Channel Relay Module](https://www.aliexpress.com/item/10000000669335.html?spm=a2g0o.order_list.order_list_main.147.36d618020lMnqG) <-- OR Two Channel Relay for Dryer
-1 x [RC522 RFID Module](https://www.digikey.ca/en/products/detail/sunfounder/CN0090/18668629) <-- *Be very weary of cheap knockoffs on Amazon and AliExpress I ended up scrapping 25 of them*
+1 x [RC522 RFID Module](https://www.digikey.ca/en/products/detail/sunfounder/CN0090/18668629) <-- *Be very wary of cheap knockoffs on Amazon and AliExpress I ended up scrapping 25 of them* Even the official ones I have to reset them every minute because they have a tendency to stop working. 
 2 x [15-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC151LFBN-RC/810153) <-- To mount the esp32 to the pcb
 1 x [14-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC141LFBN-RC/810152) <-- To connect the LCD to the PCB
 1 x [8-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC081LFBN-RC/810147) <-- To Connect the RFID to the PCB
@@ -80,7 +87,9 @@ Also used them as wires for the switches
 
 <img src="Images/dryerbox.jpg" style="width:300px; height:auto;">
 
-Endpoints used:
+#Endpoints used:
+
+Currently the API server I am using Orbit Blue server is closed source, But these are the endpoints the firmware uses and what they expect. Written in C#/.NET.
 
 ## POST "/Login"
 Logs into the server with the username and password of the machine and then stores the bearer token data to refresh its login. 
@@ -158,7 +167,7 @@ Command String can be one of:
   "cycleLengthSeconds : ulong, <-- How long each tap should run for when in timer mode.
   "amount" : double, <-- How much each tap costs.
   "coinMode" : bool, <-- Coin mode determines if the controller should pulse out once for machine start or pulse repeatedly to simulate a coin drop signal. 
-  "coinCount : int, <-- The number of coin pulses to send in coin mode.
+  "coinCount" : int, <-- The number of coin pulses to send in coin mode.
   "coinPulseDuration" : int, <-- How long the machine start and coin pulses should stay "on"
   "coinPulseDelay" : int, <-- How long to wait between coin drop pulses 
   useMachineBusy" : bool, <-- If the machine has a machine busy pin use it to update status with running and ignore taps until the machine is finished.
@@ -290,6 +299,6 @@ File: application/octet-stream
 <img src="Images/outoforder.jpg" style="width:300px; height:auto;">
 
 There was a bit of trial and error getting the right components, learning about counterfeit electronics, and iterating through what works and what works better.
-But, it has been a great project and tones of fun to go through the whole process learning how the machines work and how to interface with them. 
+But, it has been a great project and tons of fun to go through the whole process learning how the machines work and how to interface with them. 
 
 Hopefully, you might find this as a useful starting point for your own hardware projects. Happy building!
