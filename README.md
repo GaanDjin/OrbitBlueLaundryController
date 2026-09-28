@@ -35,22 +35,22 @@ PCB board to interface the different parts. Made in EasyEDA.
 The old dryer coin drop which would accept quarters and rotate a gear and ratchet to push two switches and activate the dryer:
 <img src="Images/coindropfront.jpg" style="width:300px; height:auto;">
 <img src="Images/coindroptop.jpg" style="width:300px; height:auto;">
-<img src="Images/coindropbottom.jpg" style="width:300px; height:auto;">
+<img src="Images/coindropbottom.jpg" style="width:300px; height:auto;"><br />
 So they've been $0.25 per 5 min for 60 years. (Or the really cheap that figured out a Nickel would usually work too)
 
 I tried to make the system as modular as possible so that any one module can fail and be easily replaced without tossing the whole works. I did manage to blow up a relay module putting the front panel back on and it shorted to ground. *Ka-POW* and a puff of smoke. So, again, *LINE VOLTAGE... SCARY*
 
-A Partially assembled dryer box:
+A Partially assembled dryer box:<br />
 <img src="Images/dryercontroller.jpg" style="width:300px; height:auto;">
 <img src="Images/PCBInCaseV1.jpg" style="width:300px; height:auto;">
 
-I have yet to make a box for the washer:
+I have yet to make a box for the washer:<br />
 <img src="Images/controllerinwasher.jpg" style="width:300px; height:auto;">
 
-What the initial test looked like:
+What the initial test looked like:<br />
 <img src="Images/WiringPrePCB.jpg" style="width:300px; height:auto;">
 
-The PCB just have to snip the resistor leads:
+The PCB just have to snip the resistor leads:<br />
 <img src="Images/PCBTop.jpg" style="width:300px; height:auto;">
 <img src="Images/PCBUnderside.jpg" style="width:300px; height:auto;">
 
@@ -59,30 +59,30 @@ The PCB just have to snip the resistor leads:
 
 BOM:
 
-ASA Filament for the Dryer boxes. PLA won't cut it as the dryer heat will warp it. 
-1 x ESP32 Dev board. Specifically: 30PIN ESP32S ESP-WROOM-32 I use [this one](https://www.amazon.ca/dp/B0BQJ8BTVB?th=1)
-1 x 5mm LED <-- For Washer as a status indicator
-1 x 100k resistor <-- Washer
-1 x 480 Ohm resistor <-- Washer
-1 x 100 nF Capacitor (#104) <-- Optional to smooth out RFID Power
-1 x 10 uF Capacitor <-- Optional to smooth out RFID Power
-1 x [6mm High Side Knob 6 Pin 2 Position DPDT Slide Switch](https://www.amazon.ca/20Pcs-50VAC-Position-Switch-SK22H03/dp/B0BKG6Y4KM) <-- Not the ones I went with as I had a bunch laying around but something similar for on/off.
-1 x [IRM-05-5 AC to 5v DC](https://www.digikey.ca/en/products/detail/mean-well-usa-inc/IRM-05-5/7704652) <-- A cheap buck converter isn't the greatest because of the EMI the dryers create. Needed if you can't find a 5v supply.
-1 x [AQY212EH Solid State Photo-Coupled Relay (Photorelay)](https://www.digikey.ca/en/products/detail/panasonic-industry/AQY212EH/512405) <-- Photo Relay for Washer
-1 x [Two Channel Relay Module](https://www.aliexpress.com/item/10000000669335.html?spm=a2g0o.order_list.order_list_main.147.36d618020lMnqG) <-- OR Two Channel Relay for Dryer
-1 x [RC522 RFID Module](https://www.digikey.ca/en/products/detail/sunfounder/CN0090/18668629) <-- *Be very wary of cheap knockoffs on Amazon and AliExpress I ended up scrapping 25 of them* Even the official ones I have to reset them every minute because they have a tendency to stop working. 
-2 x [15-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC151LFBN-RC/810153) <-- To mount the esp32 to the pcb
-1 x [14-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC141LFBN-RC/810152) <-- To connect the LCD to the PCB
-1 x [8-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC081LFBN-RC/810147) <-- To Connect the RFID to the PCB
-3 x [4-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC041LFBN-RC/810144)
-1 x [2-pin block terminal 2.54MM PCB](https://www.digikey.ca/en/products/detail/phoenix-contact/1725656/267462)
-1 x [4PIN Male for PC Computer ATX CPU Power Connector](https://www.aliexpress.com/item/32607655535.html?spm=a2g0o.order_list.order_list_main.50.36d618020lMnqG)
-1 x [4 inch LCD Display](https://www.aliexpress.com/item/1005005787550807.html?spm=a2g0o.order_list.order_list_main.65.36d618020lMnqG)
-Dupont Wire Male to Female:
-8-pins for RFID
-4-pins for Relay
-I couldn't find a source of just male to female so went with [ELEGOO 120pcs 20cm Multicolored Dupont Wire](https://www.amazon.ca/dp/B01EV70C78?th=1) or [RGBZONE 120pcs 20CM Multicolored Dupont](https://www.amazon.ca/dp/B01M1IEUAF?th=1)
-Also used them as wires for the switches
+ASA Filament for the Dryer boxes. PLA won't cut it as the dryer heat will warp it. <br />
+1 x ESP32 Dev board. Specifically: 30PIN ESP32S ESP-WROOM-32 I use [this one](https://www.amazon.ca/dp/B0BQJ8BTVB?th=1)<br />
+1 x 5mm LED <-- For Washer as a status indicator<br />
+1 x 100k resistor <-- Washer<br />
+1 x 480 Ohm resistor <-- Washer<br />
+1 x 100 nF Capacitor (#104) <-- Optional to smooth out RFID Power<br />
+1 x 10 uF Capacitor <-- Optional to smooth out RFID Power<br />
+1 x [6mm High Side Knob 6 Pin 2 Position DPDT Slide Switch](https://www.amazon.ca/20Pcs-50VAC-Position-Switch-SK22H03/dp/B0BKG6Y4KM) <-- Not the ones I went with as I had a bunch laying around but something similar for on/off.<br />
+1 x [IRM-05-5 AC to 5v DC](https://www.digikey.ca/en/products/detail/mean-well-usa-inc/IRM-05-5/7704652) <-- A cheap buck converter isn't the greatest because of the EMI the dryers create. Needed if you can't find a 5v supply.<br />
+1 x [AQY212EH Solid State Photo-Coupled Relay (Photorelay)](https://www.digikey.ca/en/products/detail/panasonic-industry/AQY212EH/512405) <-- Photo Relay for Washer<br />
+1 x [Two Channel Relay Module](https://www.aliexpress.com/item/10000000669335.html?spm=a2g0o.order_list.order_list_main.147.36d618020lMnqG) <-- OR Two Channel Relay for Dryer<br />
+1 x [RC522 RFID Module](https://www.digikey.ca/en/products/detail/sunfounder/CN0090/18668629) <-- *Be very wary of cheap knockoffs on Amazon and AliExpress I ended up scrapping 25 of them* Even the official ones I have to reset them every minute because they have a tendency to stop working. <br />
+2 x [15-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC151LFBN-RC/810153) <-- To mount the esp32 to the PCB<br />
+1 x [14-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC141LFBN-RC/810152) <-- To connect the LCD to the PCB<br />
+1 x [8-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC081LFBN-RC/810147) <-- To Connect the RFID to the PCB<br />
+3 x [4-pin connection header](https://www.digikey.ca/en/products/detail/sullins-connector-solutions/PPTC041LFBN-RC/810144)<br />
+1 x [2-pin block terminal 2.54MM PCB](https://www.digikey.ca/en/products/detail/phoenix-contact/1725656/267462)<br />
+1 x [4PIN Male for PC Computer ATX CPU Power Connector](https://www.aliexpress.com/item/32607655535.html?spm=a2g0o.order_list.order_list_main.50.36d618020lMnqG)<br />
+1 x [4 inch LCD Display](https://www.aliexpress.com/item/1005005787550807.html?spm=a2g0o.order_list.order_list_main.65.36d618020lMnqG)<br />
+Dupont Wire Male to Female:<br />
+8-pins for RFID<br />
+4-pins for Relay<br />
+I couldn't find a source of just male to female so went with [ELEGOO 120pcs 20cm Multicolored Dupont Wire](https://www.amazon.ca/dp/B01EV70C78?th=1) or [RGBZONE 120pcs 20CM Multicolored Dupont](https://www.amazon.ca/dp/B01M1IEUAF?th=1)<br />
+Also used them as wires for the switches<br />
 
 
 <img src="Images/dryerbox.jpg" style="width:300px; height:auto;">
