@@ -87,7 +87,7 @@ Also used them as wires for the switches<br />
 
 <img src="Images/dryerbox.jpg" style="width:300px; height:auto;">
 
-#Setup and Provisioning:
+# Setup and Provisioning:
 I'm going to assume a couple things so I'll glaze over installing the right drivers ([cp2102](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)) to talk to the esp32 and setting up PlatformIO on VS Code.
 
 Upon initial flash the esp32 will go into provisioning mode. 
@@ -102,7 +102,7 @@ The wifi must be 2.4GHz.
 The password shouldn't have any special characters in it. You might have better luck with that but I had to go Alphanumeric between all the microprocessors I have in the laundromat.
 The server port is actually default port 80 unencrypted. Then switches to the specified port with SSL if port 80 failed. I found the wakeup to init into SSL was too long and people would get frustrated waiting for at least 2 seconds for the connection to be made. 
 
-#Config in profiles:
+# Config in profiles:
 In the platformio.ini file we can use build_flags to control some fundamental parts in the firmware:
 
 ```
@@ -118,6 +118,7 @@ In the platformio.ini file we can use build_flags to control some fundamental pa
 
 Config.h has some settings that can be adjusted:
 
+```
 API_HOST <-- Can be ignored. Set during provisoning.
 API_PORT <-- Can be ignored. More in the provisioning section.
 testInitDnsHost <-- The host to attempt to ping on boot as a network test. Doesn't affect functionality and is only useful when connected to serial or to monitor on the firewall.
@@ -129,21 +130,28 @@ TAP_COOLDOWN_MS <-- How long a card has to be visible to the reader before a new
 WAKEUP_COOLDOWN_MS <-- How long between resetting the RFID reader. Default: 10000UL
 ACCUM_COMMIT_OFFSET_MS <-- A buffer to wait when the card disappears before committing to deduct funds. Default: 200UL
 BALANCE_DISPLAY_MS <-- How long to show the new balance on screen after funds have been deducted. Default: 10000UL
-
+```
+<br />
 Globals.h
 
-CONFIG_FETCH_INTERVAL_MS <-- Determines how often to get config from the server. 
+```
+CONFIG_FETCH_INTERVAL_MS <-- Determines how often to get config from the server.
+```
 
-Globals.cpp stores the global variables used in the program. One variable to take not of in here is the "Amount". The default value of Amount should be set to the default price of the machines. 
-I've recently had an issue with my VM Host playing up and temporarily locking up the server VM causing the controllers to reboot very infrequently. When they do reboot if they don't get a config right away this will be the amount they deduct during tap until the next time they get a config.
+<br />
+Globals.cpp stores the global variables used in the program. One variable to take not of in here is the "Amount". The default value of Amount should be set to the default price of the machines.<br /> 
+I've recently had an issue with my VM Host playing up and temporarily locking up the server VM causing the controllers to reboot very infrequently. When they do reboot if they don't get a config right away this will be the amount they deduct during tap until the next time they get a config.<br />
 
+```
 double        Amount              = 5;
+```
 
-
-One thing to be aware of: The GFX Library for Arduino in PlatformIO is missing "esp32-hal-periman.h"
+One thing to be aware of: The GFX Library for Arduino in PlatformIO is missing "esp32-hal-periman.h"<br />
+```
 .pio\libdeps\dev\GFX Library for Arduino\src\databus\Arduino_ESP32SPI.h
 .pio\libdeps\washer\GFX Library for Arduino\src\databus\Arduino_ESP32SPI.h
 .pio\libdeps\dryer\GFX Library for Arduino\src\databus\Arduino_ESP32SPI.h
+```
 
 Lines 21 & 22 need to be commented out if it complains:
 
@@ -152,7 +160,7 @@ Lines 21 & 22 need to be commented out if it complains:
 //#include "esp_private/periph_ctrl.h"
 ```
 
-#Endpoints used:
+# Endpoints used:
 
 Currently the API server I am using Orbit Blue server is closed source, But these are the endpoints the firmware uses and what they expect. Written in C#/.NET.
 
