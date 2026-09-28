@@ -10,7 +10,7 @@ OTA updates
 And remote config via heartbeat.
 
 
-I took over a small laundromat in the middle of nowhere Nov. 2024 and at the time only about 50% of the machines worked which meant lots of repairing. After I had them *mostly* up and running it became obvious the coin acceptors were a bit of a nightmare to use and watching people struggle to work out how coins worked (The number of time I had to tell someone which slot to put the Loonie in makes me want to cry) I decided I needed to fix that. After looking at some of the commercial products out there, which would have been nice, but were just way too expensive; I decided to build my own, from the ground up. 
+I took over a small laundromat in the middle of nowhere Nov. 2024 and at the time only about 50% of the machines worked which meant lots of repairing. After I had them *mostly* up and running it became obvious the coin acceptors were a bit of a nightmare. Watching people struggle to work out how the coins worked and the number of times I had to tell them which slot to put the Loonies into (makes me want to cry), I decided I needed to fix that. After looking at some of the available commercial products, which would have been nice, but way too expensive; I decided to build my own, from the ground up. 
 
 Enter: Orbit Blue a Laundry card management system. This would be the hardware end of the system.
 
@@ -18,7 +18,7 @@ Enter: Orbit Blue a Laundry card management system. This would be the hardware e
 
 [Dryer Start](Images/20260927_091349%20[x264].mp4)
 
-It's hard to see in the video but as I hold the card up to the reader it starts by adding 5 minutes and then adds another 5 minutes. As timer mode is cumulative so every tap (or the longer you hold) will continue to add time up to your balance.
+It's hard to see in the video but as I hold the card up to the reader it starts by adding 5 minutes and then adds another 5 minutes. As timer mode is cumulative so every tap (or the longer you hold) will continue to add time up to your card balance.
 
 [Dryer Countdown](Images/20260927_091349%20[x264].mp4)
 
@@ -28,15 +28,15 @@ The balance checker kiosk is what I use to load and refund customer cards and gu
 
 The project is broken into a few parts:
 
-The project files for the esp32 micro controllers written in C++ using Visual Studio Code.
-3D files for the dryer boxes. Made to fit a Huebsch 30EG Dryer circa 1960s. Made in Blender.
-PCB board to interface the different parts. Made in EasyEDA.
+1. The project files for the esp32 micro controllers written in C++ using Visual Studio Code.
+2. 3D files for the dryer boxes. Made to fit a Huebsch 30EG Dryer circa 1960s. Made in Blender.
+3. PCB board to interface the different parts. Made in EasyEDA.
 
 The old dryer coin drop which would accept quarters and rotate a gear and ratchet to push two switches and activate the dryer:
 <img src="Images/coindropfront.jpg" style="width:300px; height:auto;">
 <img src="Images/coindroptop.jpg" style="width:300px; height:auto;">
 <img src="Images/coindropbottom.jpg" style="width:300px; height:auto;"><br />
-So they've been $0.25 per 5 min for 60 years. (Or the really cheap that figured out a Nickel would usually work too)
+So they've been $0.25 per 5 min for 60 years. (Or the really cheap, that figured out a Nickel would usually work too)
 
 I tried to make the system as modular as possible so that any one module can fail and be easily replaced without tossing the whole works. I did manage to blow up a relay module putting the front panel back on and it shorted to ground. *Ka-POW* and a puff of smoke. So, again, *LINE VOLTAGE... SCARY*
 
@@ -55,7 +55,7 @@ The PCB just have to snip the resistor leads:<br />
 <img src="Images/PCBUnderside.jpg" style="width:300px; height:auto;">
 
 I designed the PCB to directly piggyback the lcd screen to save space and avoid the extra wiring.<br />
-<img src="Images/screenpiggyback.jpg" style="width:300px; height:auto;">
+<img src="Images/screepiggyback.jpg" style="width:300px; height:auto;">
 
 
 BOM:
@@ -96,7 +96,7 @@ Once you press the "Connect & Save" button the esp32 will reboot and attempt to 
 
 A few notes here:
 The wifi must be 2.4GHz. 
-The password shouldn't have any special characters in it. You might have better luck with that but I had to go Alphanumeric between all the microprocessors I have in this place.
+The password shouldn't have any special characters in it. You might have better luck with that but I had to go Alphanumeric between all the microprocessors I have in the laundromat.
 The server port is actually default port 80 unencrypted. Then switches to the specified port with SSL if port 80 failed. I found the wakeup to init into SSL was too long and people would get frustrated waiting for at least 2 seconds for the connection to be made. 
 
 #Config in profiles:
