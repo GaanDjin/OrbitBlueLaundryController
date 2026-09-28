@@ -16,13 +16,13 @@ Enter: Orbit Blue a Laundry card management system. This would be the hardware e
 
 <img src="Images/dryerfrontpanel.jpg" style="width:300px; height:auto;"> 
 
-[Dryer Start](Images/20260927_091349%20[x264].mp4)
+Video: [Dryer Start](Images/20260927_091349%20[x264].mp4)
 
 It's hard to see in the video but as I hold the card up to the reader it starts by adding 5 minutes and then adds another 5 minutes. As timer mode is cumulative so every tap (or the longer you hold) will continue to add time up to your card balance.
 
-[Dryer Countdown](Images/20260927_091349%20[x264].mp4)
+Video: [Dryer Countdown](Images/20260927_091349%20[x264].mp4)
 
-[Kiosk](Images/balancechecker.mp4)
+Video: [Kiosk](Images/balancechecker.mp4)
 
 The balance checker kiosk is what I use to load and refund customer cards and guest cards (Blue fob in the video).
 
@@ -93,6 +93,9 @@ I'm going to assume a couple things so I'll glaze over installing the right driv
 Upon initial flash the esp32 will go into provisioning mode. 
 Here you can enter the wifi SSID and Password along with the login information for the controller to talk to the server. 
 Once you press the "Connect & Save" button the esp32 will reboot and attempt to connect. If successful the config will be saved and you are good to go! If the login to wifi or the server fail it will reboot back to provisioning mode.
+
+<img src="Images/prov_wifi.jpg" style="width:300px; height:auto;">
+<img src="Images/prov_screen.jpg" style="width:300px; height:auto;">
 
 A few notes here:
 The wifi must be 2.4GHz. 
