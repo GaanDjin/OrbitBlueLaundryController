@@ -54,7 +54,8 @@ The PCB just have to snip the resistor leads:<br />
 <img src="Images/PCBTop.jpg" style="width:300px; height:auto;">
 <img src="Images/PCBUnderside.jpg" style="width:300px; height:auto;">
 
-
+I designed the PCB to directly piggyback the lcd screen to save space and avoid the extra wiring.<br />
+<img src="Images/screenpiggyback.jpg" style="width:300px; height:auto;">
 
 
 BOM:
@@ -84,8 +85,69 @@ Dupont Wire Male to Female:<br />
 I couldn't find a source of just male to female so went with [ELEGOO 120pcs 20cm Multicolored Dupont Wire](https://www.amazon.ca/dp/B01EV70C78?th=1) or [RGBZONE 120pcs 20CM Multicolored Dupont](https://www.amazon.ca/dp/B01M1IEUAF?th=1)<br />
 Also used them as wires for the switches<br />
 
-
 <img src="Images/dryerbox.jpg" style="width:300px; height:auto;">
+
+#Setup and Provisioning:
+I'm going to assume a couple things so I'll glaze over installing the right drivers ([cp2102](https://www.silabs.com/software-and-tools/usb-to-uart-bridge-vcp-drivers?tab=downloads)) to talk to the esp32 and setting up PlatformIO on VS Code.
+
+Upon initial flash the esp32 will go into provisioning mode. 
+Here you can enter the wifi SSID and Password along with the login information for the controller to talk to the server. 
+Once you press the "Connect & Save" button the esp32 will reboot and attempt to connect. If successful the config will be saved and you are good to go! If the login to wifi or the server fail it will reboot back to provisioning mode.
+
+A few notes here:
+The wifi must be 2.4GHz. 
+The password shouldn't have any special characters in it. You might have better luck with that but I had to go Alphanumeric between all the microprocessors I have in this place.
+The server port is actually default port 80 unencrypted. Then switches to the specified port with SSL if port 80 failed. I found the wakeup to init into SSL was too long and people would get frustrated waiting for at least 2 seconds for the connection to be made. 
+
+#Config in profiles:
+In the platformio.ini file we can use build_flags to control some fundamental parts in the firmware:
+
+```
+    -D HAS_DISPLAY <-- When included the display will be used and when excluded the whole display library is skipped. The washer doesn't have a screen in my laundromat so this is off in the washer profile.
+    -D HAS_TOUCH <-- Optional but follows the same logic as HAS_DISPLAY. When touch is enabled on the dryers it dims the screen and brightens when in use or touched.
+    -D HAS_LED_RED <-- For the washers the rfid box has a red LED that will turn red upon tap and blink if there is insufficient funds. 
+    -D RELAY_ON_START <-- While booting should the relay be on (Off by default). I use this on the dryer so that when the controller reboots it keeps the dryer running until it's back up and connected again.
+    -D RELAY_ACTIVE=false <-- Used to indicate if the relay is closed when idle or open. Typically one would want open (Off) when idle.
+    -D HAS_MACHINE_BUSY <-- Tells the esp32 to listen to the machine to determine if its running or not. While the machine is running extra taps should be ignored.
+    -D FIRMWARE_PROFILE='"dev"' <-- The profile is used during OTA updating.
+    -D FIRMWARE_VERSION='"1.1.2"' <-- The firmware version. Update this when making changes.
+```
+
+Config.h has some settings that can be adjusted:
+
+API_HOST <-- Can be ignored. Set during provisoning.
+API_PORT <-- Can be ignored. More in the provisioning section.
+testInitDnsHost <-- The host to attempt to ping on boot as a network test. Doesn't affect functionality and is only useful when connected to serial or to monitor on the firewall.
+CLEAR_PROVISION <-- Tells the esp32 to clear settings on boot. Needed when you want to reset the firmware to default. For instance changing the wifi password or login info on the esp32.
+CLEAR_CLIENT_PREFS <-- Clears the login token on boot so the esp32 will always call /login rather than reusing the bearer token in memory.
+HEARTBEAT_INTERVAL_MS <-- How often to send a heartbeat to the server. Default: 30000UL
+HEARTBEAT_TIMEOUT_MS <-- How long a heartbeat should be missed before rebooting to attempt a reconnection. Default: 600000UL
+TAP_COOLDOWN_MS <-- How long a card has to be visible to the reader before a new tap is registered. Used in cumulative mode. Default: 1000UL
+WAKEUP_COOLDOWN_MS <-- How long between resetting the RFID reader. Default: 10000UL
+ACCUM_COMMIT_OFFSET_MS <-- A buffer to wait when the card disappears before committing to deduct funds. Default: 200UL
+BALANCE_DISPLAY_MS <-- How long to show the new balance on screen after funds have been deducted. Default: 10000UL
+
+Globals.h
+
+CONFIG_FETCH_INTERVAL_MS <-- Determines how often to get config from the server. 
+
+Globals.cpp stores the global variables used in the program. One variable to take not of in here is the "Amount". The default value of Amount should be set to the default price of the machines. 
+I've recently had an issue with my VM Host playing up and temporarily locking up the server VM causing the controllers to reboot very infrequently. When they do reboot if they don't get a config right away this will be the amount they deduct during tap until the next time they get a config.
+
+double        Amount              = 5;
+
+
+One thing to be aware of: The GFX Library for Arduino in PlatformIO is missing "esp32-hal-periman.h"
+.pio\libdeps\dev\GFX Library for Arduino\src\databus\Arduino_ESP32SPI.h
+.pio\libdeps\washer\GFX Library for Arduino\src\databus\Arduino_ESP32SPI.h
+.pio\libdeps\dryer\GFX Library for Arduino\src\databus\Arduino_ESP32SPI.h
+
+Lines 21 & 22 need to be commented out if it complains:
+
+```
+//#include "esp32-hal-periman.h"
+//#include "esp_private/periph_ctrl.h"
+```
 
 #Endpoints used:
 
@@ -127,6 +189,32 @@ Response:
 
 Iso8601 Format: YYYY-MM-DDTHH:MM:SS
 Example: 2026-02-28T20:43:46.8152824+00:00
+
+---
+## GET "/accounts/current"
+Used to validate the bearer token. On error attempt to log in again.
+The response content is ignored here. Only that we get a 200 OK response or not. 
+
+---
+## GET "/machineconfig/current"
+Gets the config from the server. Same as the UpdateConfig command from heatbeat.
+
+Response:
+```
+{
+  "timerMode" : bool,    <-- True: The controller should hold the relay open for cycleLengthSeconds. This is cumulative. False: the controller will pulse out to the machine start pin.
+  "cycleLengthSeconds : ulong, <-- How long each tap should run for when in timer mode.
+  "amount" : double, <-- How much each tap costs.
+  "coinMode" : bool, <-- Coin mode determines if the controller should pulse out once for machine start or pulse repeatedly to simulate a coin drop signal. 
+  "coinCount" : int, <-- The number of coin pulses to send in coin mode.
+  "coinPulseDuration" : int, <-- How long the machine start and coin pulses should stay "on"
+  "coinPulseDelay" : int, <-- How long to wait between coin drop pulses 
+  useMachineBusy" : bool, <-- If the machine has a machine busy pin use it to update status with running and ignore taps until the machine is finished.
+  "busyCooldownSeconds" : int, <-- If the machine does not have a busy pin then this is how long the controller will issue a status of busy and ignore further taps. Gives a good estimate of when a washer is busy but has no status pin.
+  "screenTimeout" : int, <-- How long the screen should stay bright before dimming. 
+  "timeRemaining" : int <-- When in timer mode if the esp32 controller has rebooted this can be used to tell the controller how long it has left on the current cycle.
+}
+```
 
 ---
 ## POST /machines/heartbeat
@@ -295,6 +383,7 @@ Response:
 ```
 File: application/octet-stream
 ```
+
 
 <img src="Images/outoforder.jpg" style="width:300px; height:auto;">
 
